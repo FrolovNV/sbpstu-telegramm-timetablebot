@@ -7,16 +7,13 @@ from telebot import types
 import details
 import parse_university
 import parser
+import jsonparser
+import utils
 
 URL_CONST = 'https://ruz.spbstu.ru'
 file = open('text.txt', 'r')
 bot = telebot.TeleBot(file.readline())
 URL_GROUP = ''
-
-
-def is_group_number(number):
-    if '/' not in number:
-        return False
 
 
 @bot.message_handler(commands=['start'])
@@ -27,7 +24,7 @@ def start_message(message):
 
 @bot.message_handler(commands=['help'])
 def help_fun(message):
-    bot.send_message(message.chat.id, "All command:\n"
+    bot.send_message(message.chat.id, "Все команды:\n"
                                       "/help - выводит все доступные функции\n"
                                       "/check_week - просмотр всей недели\n"
                                       "/check_today - просмотр расписания на сегодня\n"
@@ -40,9 +37,13 @@ def help_fun(message):
 
 @bot.message_handler(commands=['check_week'])
 def check_week(message):
-    list_lessons = parser.parse_week(URL_GROUP)
+    url = jsonparser.get_json(int(message.chat.id))
+    if not url:
+        bot.send_message(message.chat.id, 'Простите, но сначала нужно записать вашу группу. Для этого нажмине /change_group')
+        return
+    list_lessons = parser.parse_week(url=url)
     if not list_lessons:
-        bot.send_message(message.chat.id, "You don't have timetable on this week")
+        bot.send_message(message.chat.id, "Нет расписания на эту неделю.")
         return
     all_text = 'On this week:'
     for day in list_lessons:
@@ -58,7 +59,12 @@ def check_week(message):
 
 @bot.message_handler(commands=['check_today'])
 def check_this_day(message, date_t=date.today()):
-    list_lessons = parser.parse_week(URL_GROUP)
+    url = jsonparser.get_json(int(message.chat.id))
+    if not url:
+        bot.send_message(message.chat.id,
+                         'Простите, но сначала нужно записать вашу группу. Для этого нажмине /change_group')
+        return
+    list_lessons = parser.parse_week(url=url)
     if not list_lessons:
         bot.send_message(message.chat.id, "На этой неделе нет занятий. Можно флексить.")
         return
@@ -84,8 +90,18 @@ def check_date(message):
 
 
 def find_date_timetable(message):
-    date_t = details.find_week(message.text)
-    list_lessons = parser.parse_week(URL_GROUP + '?date=' + str(date_t.year) + '-' + str(date_t.month) + '-' + str(date_t.day))
+    date_str = utils.checkDate(message.text)
+    if not date_str:
+        bot.send_message(message.chat.id, "Поставьте пожалуйста нормальную дату")
+        check_date(message)
+        return
+    date_t = details.find_week(date_str)
+    url = jsonparser.get_json(int(message.chat.id))
+    if not url:
+        bot.send_message(message.chat.id,
+                         'Простите, но сначала нужно записать вашу группу. Для этого нажмине /change_group')
+        return
+    list_lessons = parser.parse_week(url + '?date=' + str(date_t.year) + '-' + str(date_t.month) + '-' + str(date_t.day))
     if not list_lessons:
         bot.send_message(message.chat.id, "На этой неделе нет занятий. Можно флексить.")
         return
@@ -116,7 +132,12 @@ def check_tomorrow(message):
 
 @bot.message_handler(commands=['check_on_this_time'])
 def check_on_this_time(message):
-    list_lessons = parser.parse_week(URL_GROUP)
+    url = jsonparser.get_json(int(message.chat.id))
+    if not url:
+        bot.send_message(message.chat.id,
+                         'Простите, но сначала нужно записать вашу группу. Для этого нажмине /change_group')
+        return
+    list_lessons = parser.parse_week(url=url)
     if not list_lessons:
         bot.send_message(message.chat.id, "На этой неделе нет занятий. Можно флексить.")
         return
@@ -149,8 +170,13 @@ def change_group(message):
 
 @bot.message_handler(commands=['get_on_your_device'])
 def get_on_device(message):
+    url = jsonparser.get_json(int(message.chat.id))
+    if not url:
+        bot.send_message(message.chat.id,
+                         'Простите, но сначала нужно записать вашу группу. Для этого нажмине /change_group')
+        return
     bot.send_message(message.chat.id, "Следующая ссылка будет ссылкой для скачивания расписанию на эту неделю")
-    bot.send_message(message.chat.id, URL_CONST + parser.get_href_on_load(URL_GROUP))
+    bot.send_message(message.chat.id, URL_CONST + parser.get_href_on_load(url))
 
 
 @bot.message_handler(content_types=['text'])
@@ -172,14 +198,19 @@ def callback_inline(call):
 
 
 def callback_registration(message):
-    if '/' in message.text:
-        global URL_GROUP
-        list_group = parse_university.parse_group(URL_GROUP)
-        for elem in list_group:
-            if elem['group'] == message.text:
-                URL_GROUP = URL_CONST + elem['href']
-        bot.send_message(message.chat.id, URL_GROUP)
-        bot.send_message(message.chat.id, "Now, you can check you timetable. Please, check /help")
+    group = utils.checkGroup(message.text)
+    if not group:
+        bot.send_message(message.chat.id, "Введите группу коректно")
+        change_group(message)
+        return 
+    global URL_GROUP
+    list_group = parse_university.parse_group(URL_GROUP)
+    for elem in list_group:
+        if elem['group'] == group:
+            URL_GROUP = URL_CONST + elem['href']
+    jsonparser.post_json(user_id=int(message.chat.id), url=URL_GROUP)
+    bot.send_message(message.chat.id, URL_GROUP)
+    bot.send_message(message.chat.id, "Теперь можно просматривать ваше расписание. Пожалуйста, нажмите /help")
 
 
 bot.polling(none_stop=True)
