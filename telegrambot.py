@@ -26,16 +26,16 @@ def start_message(message):
 def help_fun(message):
     bot.send_message(message.chat.id, "Все команды:\n"
                                       "/help - выводит все доступные функции\n"
-                                      "/check_week - просмотр всей недели\n"
-                                      "/check_today - просмотр расписания на сегодня\n"
-                                      "/check_date - просмотр конкретной даты\n"
-                                      "/check_tomorrow - просмотр расписания на завтра\n"
-                                      "/check_on_this_time-просмотр пары которая ближе всего по времени\n"
+                                      "/week - просмотр всей недели\n"
+                                      "/today - просмотр расписания на сегодня\n"
+                                      "/date - просмотр конкретной даты\n"
+                                      "/tomorrow - просмотр расписания на завтра\n"
+                                      "/on_this_time-просмотр пары которая ближе всего по времени\n"
                                       "/change_group-изменить группу\n"
                                       "/get_on_your_device - скачать расписание в ваш календарь")
 
 
-@bot.message_handler(commands=['check_week'])
+@bot.message_handler(commands=['week'])
 def check_week(message):
     url = jsonparser.get_json(int(message.chat.id))
     if not url:
@@ -57,7 +57,7 @@ def check_week(message):
     bot.send_message(message.chat.id, all_text)
 
 
-@bot.message_handler(commands=['check_today'])
+@bot.message_handler(commands=['today'])
 def check_this_day(message, date_t=date.today()):
     url = jsonparser.get_json(int(message.chat.id))
     if not url:
@@ -82,7 +82,7 @@ def check_this_day(message, date_t=date.today()):
     bot.send_message(message.chat.id, all_text)
 
 
-@bot.message_handler(commands=['check_date'])
+@bot.message_handler(commands=['date'])
 def check_date(message):
     bot.send_message(message.chat.id, 'Пожалуйста введите дату того дня, расписания которого хотите увидеть в формате '
                                       'например 20.09.2020.')
@@ -121,7 +121,7 @@ def find_date_timetable(message):
     bot.send_message(message.chat.id, all_text)
 
 
-@bot.message_handler(commands=['check_tomorrow'])
+@bot.message_handler(commands=['tomorrow'])
 def check_tomorrow(message):
     date_t = datetime.datetime(date.today().year, date.today().month, date.today().day)
     print(date_t)
@@ -130,7 +130,7 @@ def check_tomorrow(message):
     check_this_day(message, date_t=date_t)
 
 
-@bot.message_handler(commands=['check_on_this_time'])
+@bot.message_handler(commands=['on_this_time'])
 def check_on_this_time(message):
     url = jsonparser.get_json(int(message.chat.id))
     if not url:
@@ -181,7 +181,27 @@ def get_on_device(message):
 
 @bot.message_handler(content_types=['text'])
 def echo(message):
-    bot.send_message(message.chat.id, message.text)
+    if message.text == 'Today':
+        check_this_day(message)
+        return
+    if message.text == 'On week':
+        check_week(message)
+        return
+    if message.text == 'On date':
+        check_date(message)
+        return
+    if message.text == 'Change group':
+        change_group(message)
+        return
+    if message.text == 'On this time':
+        check_on_this_time(message)
+        return
+    if message.text == 'iCall':
+        get_on_device(message)
+        return
+    if message.text == 'Tomorrow':
+        check_tomorrow(message)
+        return
     if message.text.lower() == 'россия':
         bot.send_sticker(message.chat.id, 'CAACAgIAAxkBAAICSV9rWsew_xyjF_zPz1w3S1TR5AT1AAJfCQACeVziCZCAjXmZR2L6GwQ')
 
@@ -202,7 +222,7 @@ def callback_registration(message):
     if not group:
         bot.send_message(message.chat.id, "Введите группу коректно")
         change_group(message)
-        return 
+        return
     global URL_GROUP
     list_group = parse_university.parse_group(URL_GROUP)
     for elem in list_group:
@@ -210,7 +230,18 @@ def callback_registration(message):
             URL_GROUP = URL_CONST + elem['href']
     jsonparser.post_json(user_id=int(message.chat.id), url=URL_GROUP)
     bot.send_message(message.chat.id, URL_GROUP)
-    bot.send_message(message.chat.id, "Теперь можно просматривать ваше расписание. Пожалуйста, нажмите /help")
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    items1 = types.KeyboardButton("Today")
+    items2 = types.KeyboardButton("On week")
+    items3 = types.KeyboardButton("Tomorrow")
+    items4 = types.KeyboardButton("On date")
+    items5 = types.KeyboardButton("Change group")
+    items6 = types.KeyboardButton("On this time")
+    items7 = types.KeyboardButton("iCall")
+    markup.row(items1, items2, items3)
+    markup.row(items4, items5, items6)
+    markup.row(items7)
+    bot.send_message(message.chat.id, "Теперь можно просматривать ваше расписание.", reply_markup=markup)
 
 
 bot.polling(none_stop=True)
