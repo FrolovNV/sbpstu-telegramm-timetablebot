@@ -51,7 +51,7 @@ def check_time(list_lessons):
         timeE = time.replace(hour=int(h_s_time), minute=int(m_s_time))
         if (timeB <= time <= timeE) or (time <= timeB):
             return i
-    return False
+    return "No more"
 
 
 def find_week(day):

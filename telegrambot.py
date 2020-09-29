@@ -164,7 +164,7 @@ def check_on_this_time(message):
         bot.send_message(message.chat.id, "Сегодня нет пар, можете флексить спокойно.")
         return
     this_time_index = details.check_time(list_lessons=this_day)
-    if not this_time_index:
+    if this_time_index == "No more":
         bot.send_message(message.chat.id, "На сегодня пар уже не будет")
         return
     all_text = 'Дата: (' + this_day['day'] + ')\n\t'
