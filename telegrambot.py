@@ -11,8 +11,7 @@ import jsonparser
 import utils
 
 URL_CONST = 'https://ruz.spbstu.ru'
-file = open('text.txt', 'r')
-bot = telebot.TeleBot(file.readline())
+bot = telebot.TeleBot("1296087318:AAFrE5ENr796wn480mzvJyJwW-DX0VgHVJ4")
 URL_GROUP = ''
 
 
@@ -91,8 +90,11 @@ def check_date(message):
 
 def find_date_timetable(message):
     date_str = utils.checkDate(message.text)
-    if not date_str:
-        bot.send_message(message.chat.id, "Поставьте пожалуйста нормальную дату")
+    if date_str == "Incorrect Date":
+        bot.send_message(message.chat.id, "Не оглядывайся назад")
+        return
+    elif date_str == "Invalid date":
+        bot.send_message(message.chat.id, "Пожалуйста введи дату, которая предсвлена в примере.")
         check_date(message)
         return
     date_t = details.find_week(date_str)
@@ -124,6 +126,22 @@ def find_date_timetable(message):
 @bot.message_handler(commands=['tomorrow'])
 def check_tomorrow(message):
     date_t = datetime.datetime(date.today().year, date.today().month, date.today().day)
+    if date_t.weekday() == 6:
+        date_t += datetime.timedelta(days=1)
+        url = jsonparser.get_json(message.chat.id)
+        list_ = parser.parse_week(url + '?date=' + str(date_t.year) + '-' + str(date_t.month) + '-' + str(date_t.day))
+        this_day = details.check_date(list_with_date=list_, date_t=date_t)
+        if not this_day:
+            bot.send_message(message.chat.id, "Нет пар. Можно спокойно отдыхать.")
+            return
+        all_text = 'Дата: (' + this_day['day'] + ')\n\t'
+        for i in range(0, len(this_day['subjects'])):
+            all_text += 'Время: ' + this_day['time'][i] + '\n\t'
+            all_text += 'Предмет: ' + this_day['subjects'][i] + '\n\t'
+            all_text += 'Вид занятия: ' + this_day['type_lesson'][i] + '\n\t'
+            all_text += 'Преподаватель: ' + this_day['teacher'][i] + '\n\t'
+            all_text += 'Место проведение: ' + this_day['place'][i] + '\n\n'
+        bot.send_message(message.chat.id, all_text)
     print(date_t)
     date_t += datetime.timedelta(days=1)
     print(date_t)
@@ -175,6 +193,10 @@ def get_on_device(message):
         bot.send_message(message.chat.id,
                          'Простите, но сначала нужно записать вашу группу. Для этого нажмине /change_group')
         return
+    date_t = datetime.datetime.now()
+    if date_t.weekday() == 6:
+        date_t += datetime.timedelta(days=1)
+        url += '?date=' + str(date_t.year) + '-' + str(date_t.month) + '-' + str(date_t.day)
     bot.send_message(message.chat.id, "Следующая ссылка будет ссылкой для скачивания расписанию на эту неделю")
     bot.send_message(message.chat.id, URL_CONST + parser.get_href_on_load(url))
 

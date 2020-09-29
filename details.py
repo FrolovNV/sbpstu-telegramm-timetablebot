@@ -42,7 +42,7 @@ def check_time(list_lessons):
     time = datetime.datetime.now()
     for i in range(len(list_lessons['subjects'])):
         first_time = list_lessons['time'][i][0: list_lessons['time'][i].find('-')]
-        second_time = list_lessons['time'][i][list_lessons['time'][i].find('-') + 1: len(list_lessons['time'][i]) - 1]
+        second_time = list_lessons['time'][i][list_lessons['time'][i].find('-') + 1: len(list_lessons['time'][i])]
         h_f_time = first_time[0: first_time.find(':')]
         m_f_time = first_time[first_time.find(':') + 1: len(first_time)]
         timeB = time.replace(hour=int(h_f_time), minute=int(m_f_time))
@@ -59,3 +59,7 @@ def find_week(day):
     day_t = datetime.datetime(year=int(year), month=int(mouth), day=int(days))
     day_t -= datetime.timedelta(days=day_t.weekday())
     return day_t
+
+
+# list_lessons = {'subjects': [1, 3, 4, 5], 'time': ['10:00-11:30', '12:00-13:30', '14:00-15:30', '16:00-17:30']}
+# print(check_time(list_lessons))
