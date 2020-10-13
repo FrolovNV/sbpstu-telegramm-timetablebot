@@ -57,7 +57,7 @@ def check_week(message):
 
 
 @bot.message_handler(commands=['today'])
-def check_this_day(message, date_t=date.today()):
+def check_this_day(message, date_t):
     url = jsonparser.get_json(int(message.chat.id))
     if not url:
         bot.send_message(message.chat.id,
@@ -204,7 +204,8 @@ def get_on_device(message):
 @bot.message_handler(content_types=['text'])
 def echo(message):
     if message.text == 'Today':
-        check_this_day(message)
+        date_t = date.today()
+        check_this_day(message, date_t=date_t)
         return
     if message.text == 'On week':
         check_week(message)
