@@ -34,3 +34,4 @@ jobs:
     - name: Test with unittest
       run: |
         python -m unittest test.unit_test
+        python -m unittest test.integration_test
