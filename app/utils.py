@@ -1,23 +1,24 @@
 import time
-import datetime
+from datetime import date
 import re
 
-
-def checkDate(date):
+def checkDate(inp):
     try:
         new_date = ''
-        begin = time.strptime('01.09.2020', '%d.%m.%Y')
-        end = time.strptime('31.05.2021', '%d.%m.%Y')
-        for char in date:
+        today = date.today()
+        begin_str = '01.09.' + str(today.year)
+        end_str = '30.06.' + str(today.year + 1)
+        begin = time.strptime(begin_str, '%d.%m.%Y')
+        end = time.strptime(end_str, '%d.%m.%Y')
+        for char in inp:
             if char != ' ' and (char.isdigit() or char == '.'):
                 new_date += char
 
         cur = time.strptime(new_date, '%d.%m.%Y')
-        if end < cur < begin:
-            return "Incorrect Date"
-        return new_date
+        if begin <= cur <= end:
+            return new_date
+        return "Incorrect Date"
     except:
-        print('Invalid date')
         return "Invalid date"
 
 
@@ -28,7 +29,3 @@ def checkGroup(num):
             new_num += char
     match = re.fullmatch(r'\d{7}\/\d{5}', new_num)
     return new_num if match else False
-
-
-# print(checkDate('22.09.2020'))
-# print(checkDate('24.06.2021'))
