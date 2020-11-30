@@ -45,7 +45,6 @@ def get_content(html):
             print(lessons_place)
         lessons.append(daylis)
 
-
 def parse():
     url = URL
     while True:
@@ -90,7 +89,7 @@ def parse_week(url):
             day['teacher'].append(lessons_teacher)
             day['place'].append(lessons_place)
         lessons_on_week.append(day)
-        i += 1
+        i += 1  
     return lessons_on_week
 
 
@@ -99,6 +98,3 @@ def get_href_on_load(url):
     soup = BeautifulSoup(html.text, 'html.parser')
     href_ = soup.find('div', class_= "d-none d-sm-none d-md-block col-md-6")
     return href_.contents[1]['href']
-
-
-get_href_on_load("https://ruz.spbstu.ru/faculty/95/groups/29899")

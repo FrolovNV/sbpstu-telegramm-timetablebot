@@ -1,8 +1,7 @@
 import datetime
-import parser
+from datetime import date
 
-
-def check_date(list_with_date, date_t):
+def check_data(list_with_date, date_t):
     if not list_with_date:
         return False
     new_list = {'months': [], 'day': []}
@@ -59,7 +58,3 @@ def find_week(day):
     day_t = datetime.datetime(year=int(year), month=int(mouth), day=int(days))
     day_t -= datetime.timedelta(days=day_t.weekday())
     return day_t
-
-
-# list_lessons = {'subjects': [1, 3, 4, 5], 'time': ['10:00-11:30', '12:00-13:30', '14:00-15:30', '16:00-17:30']}
-# print(check_time(list_lessons))

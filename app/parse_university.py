@@ -7,8 +7,8 @@ HEADERS = {
     , 'accept': '*/*'}
 
 
-def parse_university():
-    html = requests.get(url=URL, headers=HEADERS)
+def parse_university(url):
+    html = requests.get(url=url, headers=HEADERS) #URL
     if html.status_code != 200:
         return None
     soup = BeautifulSoup(html.text, 'html.parser')
@@ -33,3 +33,4 @@ def parse_group(url):
     for item in items:
         groups.append({'group': item.get_text(), 'href': item['href']})
     return groups
+    

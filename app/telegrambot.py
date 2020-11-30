@@ -8,12 +8,11 @@ import details
 import parse_university
 import parser
 import jsonparser
-import utils
+from app import utils
 
 URL_CONST = 'https://ruz.spbstu.ru'
 bot = telebot.TeleBot("1296087318:AAFrE5ENr796wn480mzvJyJwW-DX0VgHVJ4")
 URL_GROUP = ''
-
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
@@ -265,6 +264,5 @@ def callback_registration(message):
     markup.row(items4, items5, items6)
     markup.row(items7)
     bot.send_message(message.chat.id, "Теперь можно просматривать ваше расписание.", reply_markup=markup)
-
 
 bot.polling(none_stop=True)
