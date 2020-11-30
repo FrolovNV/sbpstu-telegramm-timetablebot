@@ -5,9 +5,9 @@ name: Python application
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, testing ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, testing ]
 
 jobs:
   build:
@@ -34,3 +34,4 @@ jobs:
     - name: Test with unittest
       run: |
         python -m unittest test.unit_test
+        python -m unittest test.integration_test
