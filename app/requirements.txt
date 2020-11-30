@@ -1,2 +1,3 @@
 telebot
 bs4
+requests
