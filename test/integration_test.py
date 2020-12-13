@@ -39,7 +39,7 @@ class IntegrationTest(unittest.TestCase):
         elif mon.strftime('%m') == '12':
             month = 'дек'
         
-        str_day = mon.strftime('%d') + ' ' + month + '., ' + 'пн'
+        str_day = mon.strftime('%-d') + ' ' + month + '., ' + 'пн'
         
         day_0 = {
             'day': str_day,
@@ -233,7 +233,7 @@ class IntegrationTest(unittest.TestCase):
         else:
             monday = date.today()
             
-        str_day = monday.strftime('%yyyy-%mm-%dd')
+        str_day = monday.strftime('%y-%-m-%-d')
         link = '/faculty/95/groups/29899/ical?date=' + str_day
         self.assertEqual(get_href_on_load('https://ruz.spbstu.ru/faculty/95/groups/29899'), link)
      
