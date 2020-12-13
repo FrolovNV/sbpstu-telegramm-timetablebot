@@ -2,12 +2,10 @@
 
 Open source telegram bot, which you can try at the link: @spbstu_timetable_bot in telegram.
 
-# installing all libraries
+# Installing all libraries
 
 ```bash
-pip3 install pyTelegramBotAPI
-pip3 install requests
-pip3 install bs4
+pip3 install -r requirements.txt
 ```
 # Running command
 
